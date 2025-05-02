@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSF Francisco de Azevedo e Silva.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .heartbeat {
+            animation: heartbeat 1.5s infinite;
+        }
+        
+        .fade-in {
+            animation: fadeIn 1.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .carousel-item {
+            transition: transform 0.6s ease;
+        }
+        
+        .map-container {
+            height: 400px;
+            background-color: #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .map-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f3f4f6 25%, #e5e7eb 25%, #e5e7eb 50%, #f3f4f6 50%, #f3f4f6 75%, #e5e7eb 75%);
+            background-size: 20px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-weight: bold;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Intro Animation -->
+    <div id="intro" class="fixed inset-0 bg-blue-50 flex flex-col items-center justify-center z-50 transition-opacity duration-1000">
+        <div class="heartbeat text-red-500 text-8xl mb-8">
+            <i class="fas fa-heart"></i>
+        </div>
+        <div class="text-center fade-in" style="animation-delay: 1.5s;">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-800 mb-4">PSF Francisco de Azevedo e Silva</h1>
+            <p class="text-blue-600 mb-8">Cuidando da sua saúde e bem-estar</p>
+            <button id="enterBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 opacity-0">
+                Entrar no site
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden initially) -->
+    <div id="mainContent" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-heartbeat text-red-500 text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold text-blue-800">PSF Francisco de Azevedo e Silva</h1>
+                </div>
+                <div class="hidden md:flex space-x-4">
+                    <a href="#" class="text-blue-600 hover:text-blue-800">Horários</a>
+                    <a href="#" class="text-blue-600 hover:text-blue-800">Notícias</a>
+                    <a href="#" class="text-blue-600 hover:text-blue-800">Contato</a>
+                </div>
+                <button class="md:hidden text-blue-600">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-r from-blue-50 to-indigo-50 py-12">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-8 slide-up">
+                    <h2 class="text-3xl md:text-4xl font-bold text-blue-800 mb-4">O que você está procurando?</h2>
+                    <p class="text-blue-600 max-w-2xl mx-auto">Selecione abaixo o serviço que deseja acessar ou solicitar</p>
+                </div>
+                
+                <!-- Services Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                    <!-- Consultas -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openForm('consultas')">
+                        <div class="text-blue-600 mb-3">
+                            <i class="fas fa-stethoscope text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Consultas</h3>
+                    </div>
+                    
+                    <!-- Preventivo -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openForm('preventivo')">
+                        <div class="text-pink-600 mb-3">
+                            <i class="fas fa-female text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Preventivo</h3>
+                    </div>
+                    
+                    <!-- Pré-natal -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openForm('prenatal')">
+                        <div class="text-purple-600 mb-3">
+                            <i class="fas fa-baby text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Pré-natal</h3>
+                    </div>
+                    
+                    <!-- Puericultura -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openForm('puericultura')">
+                        <div class="text-yellow-600 mb-3">
+                            <i class="fas fa-child text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Puericultura</h3>
+                    </div>
+                    
+                    <!-- Teste rápido -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openForm('teste-rapido')">
+                        <div class="text-red-600 mb-3">
+                            <i class="fas fa-vial text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Teste rápido</h3>
+                    </div>
+                    
+                    <!-- Contatos -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openModal('contatos')">
+                        <div class="text-green-600 mb-3">
+                            <i class="fas fa-phone-alt text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Contatos</h3>
+                    </div>
+                    
+                    <!-- Vacinação -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openForm('vacinacao')">
+                        <div class="text-indigo-600 mb-3">
+                            <i class="fas fa-syringe text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Vacinação</h3>
+                    </div>
+                    
+                    <!-- Notícias -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openModal('noticias')">
+                        <div class="text-blue-400 mb-3">
+                            <i class="fas fa-newspaper text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Notícias</h3>
+                    </div>
+                    
+                    <!-- Localização -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openModal('localizacao')">
+                        <div class="text-orange-600 mb-3">
+                            <i class="fas fa-map-marker-alt text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Localização</h3>
+                    </div>
+                    
+                    <!-- Mapa -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openModal('mapa')">
+                        <div class="text-teal-600 mb-3">
+                            <i class="fas fa-map text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Mapa</h3>
+                    </div>
+                    
+                    <!-- Cadastro -->
+                    <div class="service-card bg-white rounded-xl shadow-md p-6 text-center cursor-pointer hover:bg-blue-50" onclick="openForm('cadastro')">
+                        <div class="text-gray-600 mb-3">
+                            <i class="fas fa-user-plus text-4xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-blue-800">Cadastro</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- News Carousel -->
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-2xl font-bold text-blue-800 mb-6 text-center">Notícias e Atualizações</h2>
+                
+                <div class="relative max-w-4xl mx-auto">
+                    <div id="newsCarousel" class="overflow-hidden relative h-64 rounded-xl shadow-md">
+                        <!-- Carousel Items -->
+                        <div class="carousel-item absolute inset-0 flex items-center bg-blue-50 p-8 transition-transform duration-500">
+                            <div class="w-1/3 hidden md:block">
+                                <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Agentes de saúde" class="w-full h-48 object-cover rounded-lg">
+                            </div>
+                            <div class="md:w-2/3 pl-0 md:pl-8">
+                                <h3 class="text-xl font-bold text-blue-800 mb-2">Campanha de Vacinação</h3>
+                                <p class="text-gray-700 mb-4">Estamos realizando uma campanha de vacinação contra a gripe para idosos e gestantes. Compareça à UBS mais próxima.</p>
+                                <span class="text-sm text-blue-600">Publicado em: 15/06/2023</span>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item absolute inset-0 flex items-center bg-indigo-50 p-8 transition-transform duration-500">
+                            <div class="w-1/3 hidden md:block">
+                                <img src="https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Atividades na UBS" class="w-full h-48 object-cover rounded-lg">
+                            </div>
+                            <div class="md:w-2/3 pl-0 md:pl-8">
+                                <h3 class="text-xl font-bold text-blue-800 mb-2">Novo Horário às Terças</h3>
+                                <p class="text-gray-700 mb-4">A partir de julho, a UBS ficará aberta até às 19h nas terças-feiras para melhor atender a comunidade.</p>
+                                <span class="text-sm text-blue-600">Publicado em: 10/06/2023</span>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item absolute inset-0 flex items-center bg-purple-50 p-8 transition-transform duration-500">
+                            <div class="w-1/3 hidden md:block">
+                                <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Equipe de saúde" class="w-full h-48 object-cover rounded-lg">
+                            </div>
+                            <div class="md:w-2/3 pl-0 md:pl-8">
+                                <h3 class="text-xl font-bold text-blue-800 mb-2">Grupo de Gestantes</h3>
+                                <p class="text-gray-700 mb-4">Todas as quintas-feiras às 14h temos encontro do grupo de gestantes com orientações e atividades.</p>
+                                <span class="text-sm text-blue-600">Publicado em: 05/06/2023</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Carousel Controls -->
+                    <button id="prevNews" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white p-2 rounded-full shadow-md text-blue-600 hover:bg-blue-100">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button id="nextNews" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white p-2 rounded-full shadow-md text-blue-600 hover:bg-blue-100">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    
+                    <!-- Indicators -->
+                    <div class="flex justify-center mt-4 space-x-2">
+                        <button class="w-3 h-3 rounded-full bg-blue-300 indicator-btn" data-index="0"></button>
+                        <button class="w-3 h-3 rounded-full bg-blue-300 indicator-btn" data-index="1"></button>
+                        <button class="w-3 h-3 rounded-full bg-blue-300 indicator-btn" data-index="2"></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Map Section -->
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-2xl font-bold text-blue-800 mb-6 text-center">Nossa Área de Atendimento</h2>
+                
+                <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="map-container">
+                        <div class="map-placeholder">
+                            <div class="text-center p-4">
+                                <i class="fas fa-map-marked-alt text-4xl mb-3 text-blue-600"></i>
+                                <p>Mapa interativo da área de abrangência</p>
+                                <p class="text-sm mt-2">Zoom in/out para explorar as ruas atendidas</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-3">Solicitar cadastro na área</h3>
+                        <p class="text-gray-700 mb-4">Se você mora nesta área e ainda não está cadastrado, preencha o formulário abaixo:</p>
+                        
+                        <form id="areaRegistrationForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
+                                <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Endereço completo</label>
+                                <input type="text" id="address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                                <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="home-time" class="block text-sm font-medium text-gray-700 mb-1">Horário que geralmente está em casa</label>
+                                <select id="home-time" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="morning">Manhã (8h-12h)</option>
+                                    <option value="afternoon">Tarde (13h-17h)</option>
+                                    <option value="evening">Noite (18h-21h)</option>
+                                    <option value="variable">Varia</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <span class="ml-2 text-sm text-gray-700">É urgência? (precisamos entrar em contato rapidamente)</span>
+                                </label>
+                            </div>
+                            <div class="md:col-span-2">
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                                    Enviar solicitação
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Opening Hours -->
+        <section class="py-8 bg-blue-800 text-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-xl font-bold mb-4">Horário de Atendimento</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                    <div class="bg-blue-700 p-4 rounded-lg">
+                        <p class="font-medium">Segunda a Sexta</p>
+                        <p>07h às 17h</p>
+                    </div>
+                    <div class="bg-blue-700 p-4 rounded-lg">
+                        <p class="font-medium">Terças-feiras</p>
+                        <p>Até às 19h</p>
+                    </div>
+                    <div class="bg-blue-700 p-4 rounded-lg">
+                        <p class="font-medium">Plantão 24h</p>
+                        <p>UPA mais próxima</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-8">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">PSF Francisco de Azevedo e Silva</h3>
+                        <p class="text-gray-400">Acesso rápido aos serviços de saúde da sua comunidade.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Links Rápidos</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white transition">Notícias</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition">Localização</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition">Contatos</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition">Área Restrita</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Contato</h3>
+                        <p class="text-gray-400 mb-2"><i class="fas fa-phone-alt mr-2"></i> (XX) XXXX-XXXX</p>
+                        <p class="text-gray-400"><i class="fas fa-envelope mr-2"></i> contato@saudecomunitaria.com</p>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                    <p>&copy; 2023 Saúde Comunitária. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Modal Backdrop -->
+        <div id="modalBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+            <!-- Modal Content Container -->
+            <div class="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                <!-- Modal Header -->
+                <div class="border-b px-6 py-4 flex justify-between items-center">
+                    <h3 id="modalTitle" class="text-xl font-bold text-blue-800">Modal Title</h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div id="modalBody" class="p-6">
+                    <!-- Content will be inserted here -->
+                </div>
+                
+                <!-- Modal Footer -->
+                <div class="border-t px-6 py-3 flex justify-end">
+                    <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 mr-2">
+                        Fechar
+                    </button>
+                    <button id="modalActionBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Modal -->
+        <div id="formModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="border-b px-6 py-4 flex justify-between items-center">
+                    <h3 id="formTitle" class="text-xl font-bold text-blue-800">Solicitação de Serviço</h3>
+                    <button onclick="closeFormModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div id="formBody" class="p-6">
+                    <!-- Form content will be inserted here -->
+                </div>
+                
+                <div class="border-t px-6 py-3 flex justify-end">
+                    <button onclick="closeFormModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 mr-2">
+                        Cancelar
+                    </button>
+                    <button id="formSubmitBtn" onclick="submitForm()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Enviar Solicitação
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center">
+                <div class="text-green-500 text-5xl mb-4">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Solicitação Enviada!</h3>
+                <p id="successMessage" class="text-gray-600 mb-6">
+                    Sua solicitação foi enviada com sucesso! Um Agente Comunitário de Saúde entrará em contato para informar a data do agendamento.
+                </p>
+                <button onclick="closeSuccessModal()" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Intro Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make enter button visible after delay
+            setTimeout(() => {
+                document.getElementById('enterBtn').classList.remove('opacity-0');
+            }, 2500);
+            
+            // Handle enter button click
+            document.getElementById('enterBtn').addEventListener('click', function() {
+                document.getElementById('intro').classList.add('opacity-0');
+                setTimeout(() => {
+                    document.getElementById('intro').classList.add('hidden');
+                    document.getElementById('mainContent').classList.remove('hidden');
+                }, 1000);
+            });
+            
+            // Initialize carousel
+            initCarousel();
+        });
+        
+        // Carousel functionality
+        let currentNewsIndex = 0;
+        const newsItems = document.querySelectorAll('.carousel-item');
+        const totalNews = newsItems.length;
+        
+        function initCarousel() {
+            // Show first item
+            newsItems[0].classList.add('opacity-100');
+            newsItems[0].style.transform = 'translateX(0)';
+            
+            // Hide others
+            for (let i = 1; i < totalNews; i++) {
+                newsItems[i].classList.add('opacity-0');
+                newsItems[i].style.transform = 'translateX(100%)';
+            }
+            
+            // Set up event listeners
+            document.getElementById('prevNews').addEventListener('click', showPrevNews);
+            document.getElementById('nextNews').addEventListener('click', showNextNews);
+            
+            // Indicator buttons
+            document.querySelectorAll('.indicator-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    showNews(index);
+                });
+            });
+        }
+        
+        function showPrevNews() {
+            currentNewsIndex = (currentNewsIndex - 1 + totalNews) % totalNews;
+            showNews(currentNewsIndex);
+        }
+        
+        function showNextNews() {
+            currentNewsIndex = (currentNewsIndex + 1) % totalNews;
+            showNews(currentNewsIndex);
+        }
+        
+        function showNews(index) {
+            // Hide all items
+            newsItems.forEach(item => {
+                item.classList.remove('opacity-100');
+                item.classList.add('opacity-0');
+                item.style.transform = 'translateX(100%)';
+            });
+            
+            // Show selected item
+            newsItems[index].classList.remove('opacity-0');
+            newsItems[index].classList.add('opacity-100');
+            newsItems[index].style.transform = 'translateX(0)';
+            
+            // Update current index
+            currentNewsIndex = index;
+            
+            // Update indicators
+            updateIndicators();
+        }
+        
+        function updateIndicators() {
+            document.querySelectorAll('.indicator-btn').forEach((btn, i) => {
+                if (i === currentNewsIndex) {
+                    btn.classList.remove('bg-blue-300');
+                    btn.classList.add('bg-blue-600');
+                } else {
+                    btn.classList.remove('bg-blue-600');
+                    btn.classList.add('bg-blue-300');
+                }
+            });
+        }
+        
+        // Modal functions
+        function openModal(modalType) {
+            const modal = document.getElementById('modalBackdrop');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            const actionBtn = document.getElementById('modalActionBtn');
+            
+            // Set content based on modal type
+            switch(modalType) {
+                case 'contatos':
+                    title.textContent = 'Contatos Importantes';
+                    body.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-phone-alt text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">UBS Central</h4>
+                                    <p class="text-gray-600">(XX) XXXX-XXXX</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-green-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-ambulance text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">SAMU</h4>
+                                    <p class="text-gray-600">192</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-red-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-hospital text-red-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">UPA 24h</h4>
+                                    <p class="text-gray-600">(XX) XXXX-XXXX</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-yellow-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-user-md text-yellow-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Agente Comunitário</h4>
+                                    <p class="text-gray-600">Consulte o quadro de agentes na UBS</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    actionBtn.classList.add('hidden');
+                    break;
+                    
+                case 'noticias':
+                    title.textContent = 'Últimas Notícias';
+                    body.innerHTML = `
+                        <div class="space-y-6">
+                            <div class="border-b pb-4">
+                                <h4 class="font-semibold text-blue-700">Campanha de Vacinação</h4>
+                                <p class="text-sm text-gray-600 mb-2">15/06/2023</p>
+                                <p class="text-gray-700">Estamos realizando uma campanha de vacinação contra a gripe para idosos e gestantes. Compareça à UBS mais próxima.</p>
+                            </div>
+                            <div class="border-b pb-4">
+                                <h4 class="font-semibold text-blue-700">Novo Horário às Terças</h4>
+                                <p class="text-sm text-gray-600 mb-2">10/06/2023</p>
+                                <p class="text-gray-700">A partir de julho, a UBS ficará aberta até às 19h nas terças-feiras para melhor atender a comunidade.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-blue-700">Grupo de Gestantes</h4>
+                                <p class="text-sm text-gray-600 mb-2">05/06/2023</p>
+                                <p class="text-gray-700">Todas as quintas-feiras às 14h temos encontro do grupo de gestantes com orientações e atividades.</p>
+                            </div>
+                        </div>
+                    `;
+                    actionBtn.classList.add('hidden');
+                    break;
+                    
+                case 'localizacao':
+                    title.textContent = 'Nossa Localização';
+                    body.innerHTML = `
+                        <div class="mb-4">
+                            <p class="text-gray-700 mb-2">Unidade Básica de Saúde - UBS Central</p>
+                            <p class="text-gray-600">Rua Exemplo, 123 - Centro</p>
+                            <p class="text-gray-600">Cidade - Estado</p>
+                            <p class="text-gray-600">CEP: XXXXX-XXX</p>
+                        </div>
+                        <div class="map-container h-48">
+                            <div class="map-placeholder">
+                                <i class="fas fa-map-marker-alt text-3xl text-blue-600"></i>
+                            </div>
+                        </div>
+                    `;
+                    actionBtn.classList.remove('hidden');
+                    actionBtn.textContent = 'Abrir no Mapa';
+                    break;
+                    
+                case 'mapa':
+                    title.textContent = 'Mapa da Área de Abrangência';
+                    body.innerHTML = `
+                        <div class="mb-4">
+                            <p class="text-gray-700">Esta é a área coberta pela nossa equipe de saúde comunitária.</p>
+                        </div>
+                        <div class="map-container h-64">
+                            <div class="map-placeholder">
+                                <i class="fas fa-map-marked-alt text-4xl text-blue-600 mb-2"></i>
+                                <p>Mapa interativo da área de abrangência</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-600">
+                            <p>Se você mora nesta área e ainda não está cadastrado, solicite seu cadastro no formulário disponível.</p>
+                        </div>
+                    `;
+                    actionBtn.classList.add('hidden');
+                    break;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeModal() {
+            document.getElementById('modalBackdrop').classList.add('hidden');
+        }
+        
+        // Form Modal functions
+        function openForm(formType) {
+            const formModal = document.getElementById('formModal');
+            const formTitle = document.getElementById('formTitle');
+            const formBody = document.getElementById('formBody');
+            
+            // Set content based on form type
+            switch(formType) {
+                case 'consultas':
+                    formTitle.textContent = 'Solicitar Consulta';
+                    formBody.innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label for="consult-name" class="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
+                                <input type="text" id="consult-name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="consult-phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                                <input type="tel" id="consult-phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="consult-birth" class="block text-sm font-medium text-gray-700 mb-1">Data de nascimento</label>
+                                <input type="date" id="consult-birth" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="consult-address" class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                                <input type="text" id="consult-address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="consult-reason" class="block text-sm font-medium text-gray-700 mb-1">Motivo da consulta</label>
+                                <textarea id="consult-reason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <span class="ml-2 text-sm text-gray-700">Preferência por horário da manhã</span>
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'prenatal':
+                    formTitle.textContent = 'Solicitar Pré-Natal';
+                    formBody.innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label for="prenatal-name" class="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
+                                <input type="text" id="prenatal-name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="prenatal-phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                                <input type="tel" id="prenatal-phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="prenatal-birth" class="block text-sm font-medium text-gray-700 mb-1">Data de nascimento</label>
+                                <input type="date" id="prenatal-birth" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="prenatal-address" class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                                <input type="text" id="prenatal-address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="prenatal-weeks" class="block text-sm font-medium text-gray-700 mb-1">Quantas semanas de gestação</label>
+                                <input type="number" id="prenatal-weeks" min="1" max="42" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">É o 1º pré-natal?</label>
+                                <div class="mt-1 space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="first-prenatal" value="sim" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-gray-700">Sim</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="first-prenatal" value="nao" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-gray-700">Não</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Já fez exame Beta HCG recentemente?</label>
+                                <div class="mt-1 space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="beta-hcg" value="sim" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-gray-700">Sim</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="beta-hcg" value="nao" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-gray-700">Não</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'cadastro':
+                    formTitle.textContent = 'Solicitar Cadastro';
+                    formBody.innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label for="register-name" class="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
+                                <input type="text" id="register-name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="register-phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                                <input type="tel" id="register-phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="register-birth" class="block text-sm font-medium text-gray-700 mb-1">Data de nascimento</label>
+                                <input type="date" id="register-birth" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="register-address" class="block text-sm font-medium text-gray-700 mb-1">Endereço completo</label>
+                                <input type="text" id="register-address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="register-home-time" class="block text-sm font-medium text-gray-700 mb-1">Horário que geralmente está em casa</label>
+                                <select id="register-home-time" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="morning">Manhã (8h-12h)</option>
+                                    <option value="afternoon">Tarde (13h-17h)</option>
+                                    <option value="evening">Noite (18h-21h)</option>
+                                    <option value="variable">Varia</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">É urgência? (precisamos entrar em contato rapidamente)</label>
+                                <div class="mt-1 space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="urgency" value="sim" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-gray-700">Sim</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="urgency" value="nao" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-gray-700">Não</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                // Add cases for other form types (preventivo, puericultura, teste-rapido, vacinacao)
+                // The structure would be similar to the ones above
+                
+                default:
+                    formTitle.textContent = 'Solicitar Serviço';
+                    formBody.innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label for="default-name" class="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
+                                <input type="text" id="default-name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="default-phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                                <input type="tel" id="default-phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="default-birth" class="block text-sm font-medium text-gray-700 mb-1">Data de nascimento</label>
+                                <input type="date" id="default-birth" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="default-address" class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                                <input type="text" id="default-address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    `;
+            }
+            
+            formModal.classList.remove('hidden');
+        }
+        
+        function closeFormModal() {
+            document.getElementById('formModal').classList.add('hidden');
+        }
+        
+        function submitForm() {
+            // In a real app, this would submit the form data to a server
+            // Here we just show a success message
+            
+            closeFormModal();
+            showSuccessModal();
+        }
+        
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+        
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

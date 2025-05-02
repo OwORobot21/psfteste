@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Paciente - Saúde Comunitária</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Todos os estilos anteriores permanecem aqui */
+        
+        /* Novos estilos para a área administrativa */
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .admin-table th {
+            position: sticky;
+            top: 0;
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 500;
+            text-align: left;
+        }
+        
+        .admin-table th, .admin-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .admin-table tr:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-canceled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .filter-chip {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .filter-chip.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Todo o conteúdo anterior permanece aqui -->
+
+    <!-- Admin Area (hidden initially) -->
+    <div id="adminArea" class="hidden">
+        <!-- Admin Header -->
+        <header class="bg-blue-800 text-white shadow-sm">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-user-md text-xl mr-3"></i>
+                    <h1 class="text-xl font-bold">Área Administrativa</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="logoutBtn" class="flex items-center text-white hover:text-blue-200">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Admin Navigation -->
+        <nav class="bg-white shadow-sm">
+            <div class="container mx-auto px-4">
+                <div class="flex overflow-x-auto">
+                    <button data-tab="requests" class="admin-tab active px-6 py-4 font-medium text-blue-800 border-b-2 border-blue-800">
+                        <i class="fas fa-clipboard-list mr-2"></i>
+                        Solicitações
+                    </button>
+                    <button data-tab="patients" class="admin-tab px-6 py-4 font-medium text-gray-600 border-b-2 border-transparent hover:text-blue-800">
+                        <i class="fas fa-users mr-2"></i>
+                        Pacientes
+                    </button>
+                    <button data-tab="news" class="admin-tab px-6 py-4 font-medium text-gray-600 border-b-2 border-transparent hover:text-blue-800">
+                        <i class="fas fa-newspaper mr-2"></i>
+                        Notícias
+                    </button>
+                    <button data-tab="settings" class="admin-tab px-6 py-4 font-medium text-gray-600 border-b-2 border-transparent hover:text-blue-800">
+                        <i class="fas fa-cog mr-2"></i>
+                        Configurações
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Admin Content -->
+        <main class="container mx-auto px-4 py-8">
+            <!-- Requests Tab -->
+            <div id="requestsTab" class="admin-tab-content">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Solicitações Recentes</h2>
+                    <div class="flex space-x-3">
+                        <div class="relative">
+                            <select id="statusFilter" class="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="all">Todos os status</option>
+                                <option value="pending">Pendentes</option>
+                                <option value="completed">Atendidos</option>
+                                <option value="canceled">Cancelados</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <select id="serviceFilter" class="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="all">Todos os serviços</option>
+                                <option value="consultas">Consultas</option>
+                                <option value="prenatal">Pré-natal</option>
+                                <option value="preventivo">Preventivo</option>
+                                <option value="puericultura">Puericultura</option>
+                                <option value="teste-rapido">Teste rápido</option>
+                                <option value="vacinacao">Vacinação</option>
+                                <option value="cadastro">Cadastro</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                        <button id="exportBtn" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm">
+                            <i class="fas fa-file-export mr-2"></i>
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Filters -->
+                <div class="mb-6">
+                    <div class="flex flex-wrap items-center">
+                        <span class="text-sm text-gray-600 mr-3">Filtros rápidos:</span>
+                        <button class="filter-chip active" data-filter="date" data-value="today">Hoje</button>
+                        <button class="filter-chip" data-filter="date" data-value="week">Esta semana</button>
+                        <button class="filter-chip" data-filter="date" data-value="month">Este mês</button>
+                    </div>
+                </div>
+
+                <!-- Requests Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th class="w-1/12">ID</th>
+                                    <th class="w-3/12">Paciente</th>
+                                    <th class="w-2/12">Serviço</th>
+                                    <th class="w-2/12">Data</th>
+                                    <th class="w-2/12">Status</th>
+                                    <th class="w-2/12">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requestsTableBody">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex justify-between items-center mt-6">
+                    <div class="text-sm text-gray-600">
+                        Mostrando <span id="showingFrom">1</span> a <span id="showingTo">10</span> de <span id="totalItems">24</span> registros
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">1</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-100">2</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-100">3</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patients Tab -->
+            <div id="patientsTab" class="admin-tab-content hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Cadastro de Pacientes</h2>
+                    <div class="flex space-x-3">
+                        <div class="relative w-64">
+                            <input type="text" placeholder="Buscar paciente..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                        <button id="newPatientBtn" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm">
+                            <i class="fas fa-plus mr-2"></i>
+                            Novo paciente
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Patients Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th class="w-1/12">ID</th>
+                                    <th class="w-3/12">Nome</th>
+                                    <th class="w-2/12">Data Nasc.</th>
+                                    <th class="w-2/12">Telefone</th>
+                                    <th class="w-2/12">Endereço</th>
+                                    <th class="w-2/12">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientsTableBody">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex justify-between items-center mt-6">
+                    <div class="text-sm text-gray-600">
+                        Mostrando <span id="showingFromPatients">1</span> a <span id="showingToPatients">10</span> de <span id="totalPatients">24</span> registros
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">1</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-100">2</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-100">3</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-sm">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Tab -->
+            <div id="newsTab" class="admin-tab-content hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Gerenciamento de Notícias</h2>
+                    <button id="newNewsBtn" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm">
+                        <i class="fas fa-plus mr-2"></i>
+                        Nova notícia
+                    </button>
+                </div>
+
+                <!-- News Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- News items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="admin-tab-content hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Configurações do Sistema</h2>
+                
+                <div class="bg-white rounded-lg shadow overflow-hidden divide-y divide-gray-200">
+                    <!-- User Profile -->
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Perfil do Usuário</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                                <input type="text" value="Dr. João Silva" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                                <input type="email" value="joao.silva@saude.gov.br" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Função</label>
+                                <input type="text" value="Médico" disabled class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Unidade</label>
+                                <input type="text" value="UBS Central" disabled class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100">
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                                Salvar alterações
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- System Settings -->
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Configurações do Sistema</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="notifications" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="notifications" class="ml-3 block text-sm font-medium text-gray-700">
+                                    Receber notificações por e-mail
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="darkMode" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="darkMode" class="ml-3 block text-sm font-medium text-gray-700">
+                                    Modo escuro
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Danger Zone -->
+                    <div class="p-6 bg-red-50">
+                        <h3 class="text-lg font-medium text-red-800 mb-4">Área de Risco</h3>
+                        <p class="text-sm text-red-600 mb-4">Essas ações são irreversíveis. Tenha cuidado.</p>
+                        <div class="flex space-x-4">
+                            <button class="px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-100">
+                                Limpar cache
+                            </button>
+                            <button class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                                Resetar configurações
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="login-container">
+            <div class="bg-blue-800 text-white p-6 text-center">
+                <h2 class="text-2xl font-bold">Acesso Restrito</h2>
+                <p class="mt-2">Profissionais de saúde</p>
+            </div>
+            <div class="p-6">
+                <form id="adminLoginForm">
+                    <div class="mb-4">
+                        <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                        <input type="email" id="loginEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                        <input type="password" id="loginPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                        Entrar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Detail Modal -->
+    <div id="patientDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="border-b px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-blue-800">Detalhes do Paciente</h3>
+                <button onclick="closePatientModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Informações Pessoais</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500">Nome completo</p>
+                                <p class="font-medium" id="patientName">Maria da Silva</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Data de nascimento</p>
+                                <p class="font-medium" id="patientBirth">15/03/1985</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">CPF</p>
+                                <p class="font-medium" id="patientCpf">123.456.789-00</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Nome da mãe</p>
+                                <p class="font-medium" id="patientMother">Ana Maria da Silva</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Contato</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500">Telefone</p>
+                                <p class="font-medium" id="patientPhone">(11) 98765-4321</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">E-mail</p>
+                                <p class="font-medium" id="patientEmail">maria.silva@email.com</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Endereço</p>
+                                <p class="font-medium" id="patientAddress">Rua das Flores, 123 - Centro, São Paulo/SP</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Histórico de Atendimentos</h4>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left text-sm font-medium text-gray-500 pb-2">Data</th>
+                                        <th class="text-left text-sm font-medium text-gray-500 pb-2">Serviço</th>
+                                        <th class="text-left text-sm font-medium text-gray-500 pb-2">Profissional</th>
+                                        <th class="text-left text-sm font-medium text-gray-500 pb-2">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patientHistoryBody">
+                                    <!-- History items will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Observações</h4>
+                    <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Adicione observações sobre o paciente..."></textarea>
+                    <button class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">
+                        Salvar observações
+                    </button>
+                </div>
+            </div>
+            
+            <div class="border-t px-6 py-3 flex justify-end">
+                <button onclick="closePatientModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 mr-2">
+                    Fechar
+                </button>
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Editar paciente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Detail Modal -->
+    <div id="requestDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="border-b px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-blue-800">Detalhes da Solicitação</h3>
+                <button onclick="closeRequestModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Informações da Solicitação</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500">ID</p>
+                                <p class="font-medium" id="requestId">#REQ-2023-0015</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Data</p>
+                                <p class="font-medium" id="requestDate">15/06/2023 14:30</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Serviço</p>
+                                <p class="font-medium" id="requestService">Pré-natal</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Status</p>
+                                <p class="font-medium">
+                                    <span id="requestStatus" class="status-badge status-pending">Pendente</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Paciente</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500">Nome</p>
+                                <p class="font-medium" id="requestPatientName">Maria da Silva</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Telefone</p>
+                                <p class="font-medium" id="requestPatientPhone">(11) 98765-4321</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Endereço</p>
+                                <p class="font-medium" id="requestPatientAddress">Rua das Flores, 123 - Centro, São Paulo/SP</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Detalhes do Serviço</h4>
+                    <div id="requestDetails" class="bg-gray-50 rounded-lg p-4">
+                        <!-- Service-specific details will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Ações</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button onclick="updateRequestStatus('completed')" class="flex items-center justify-center bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-md">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Marcar como atendido
+                        </button>
+                        <button onclick="updateRequestStatus('pending')" class="flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-3 rounded-md">
+                            <i class="fas fa-clock mr-2"></i>
+                            Manter como pendente
+                        </button>
+                        <button onclick="updateRequestStatus('canceled')" class="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-md">
+                            <i class="fas fa-times-circle mr-2"></i>
+                            Cancelar solicitação
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Observações</h4>
+                    <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Adicione observações sobre esta solicitação..."></textarea>
+                    <button class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">
+                        Salvar observações
+                    </button>
+                </div>
+            </div>
+            
+            <div class="border-t px-6 py-3 flex justify-end">
+                <button onclick="closeRequestModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 mr-2">
+                    Fechar
+                </button>
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Agendar atendimento
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Todo o JavaScript anterior permanece aqui
+
+        // Admin Area Functions
+        function showAdminLogin() {
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+        }
+
+        function hideAdminLogin() {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+
+        function loginAdmin() {
+            // In a real app, this would validate credentials with a server
+            hideAdminLogin();
+            
+            // Hide main content and show admin area
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('adminArea').classList.remove('hidden');
+            
+            // Load sample data
+            loadSampleRequests();
+            loadSamplePatients();
+        }
+
+        function logoutAdmin() {
+            // Hide admin area and show main content
+            document.getElementById('adminArea').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
+
+        function switchAdminTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.admin-tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId + 'Tab').classList.remove('hidden');
+            
+            // Update active tab button
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active', 'text-blue-800', 'border-blue-800');
+                tab.classList.add('text-gray-600', 'border-transparent');
+            });
+            
+            document.querySelector(`.admin-tab[data-tab="${tabId}"]`).classList.add('active', 'text-blue-800', 'border-blue-800');
+            document.querySelector(`.admin-tab[data-tab="${tabId}"]`).classList.remove('text-gray-600', 'border-transparent');
+        }
+
+        function loadSampleRequests() {
+            const requests = [
+                {
+                    id: '#REQ-2023-0015',
+                    patient: 'Maria da Silva',
+                    service: 'Pré-natal',
+                    date: '15/06/2023',
+                    status: 'pending',
+                    details: {
+                        weeks: '12 semanas',
+                        firstPrenatal: 'Sim',
+                        betaHCG: 'Não'
+                    }
+                },
+                {
+                    id: '#REQ-2023-0014',
+                    patient: 'João Oliveira',
+                    service: 'Consulta',
+                    date: '14/06/2023',
+                    status: 'completed',
+                    details: {
+                        reason: 'Dor abdominal persistente'
+                    }
+                },
+                {
+                    id: '#REQ-2023-0013',
+                    patient: 'Ana Santos',
+                    service: 'Preventivo',
+                    date: '13/06/2023',
+                    status: 'pending'
+                },
+                {
+                    id: '#REQ-2023-0012',
+                    patient: 'Carlos Pereira',
+                    service: 'Teste rápido',
+                    date: '12/06/2023',
+                    status: 'completed'
+                },
+                {
+                    id: '#REQ-2023-0011',
+                    patient: 'Fernanda Lima',
+                    service: 'Puericultura',
+                    date: '10/06/2023',
+                    status: 'completed'
+                },
+                {
+                    id: '#REQ-2023-0010',
+                    patient: 'Roberto Almeida',
+                    service: 'Vacinação',
+                    date: '09/06/2023',
+                    status: 'canceled'
+                },
+                {
+                    id: '#REQ-2023-0009',
+                    patient: 'Patrícia Costa',
+                    service: 'Cadastro',
+                    date: '08/06/2023',
+                    status: 'completed'
+                },
+                {
+                    id: '#REQ-2023-0008',
+                    patient: 'Marcos Souza',
+                    service: 'Consulta',
+                    date: '07/06/2023',
+                    status: 'pending',
+                    details: {
+                        reason: 'Acompanhamento de hipertensão'
+                    }
+                }
+            ];
+
+            const tbody = document.getElementById('requestsTableBody');
+            tbody.innerHTML = '';
+
+            requests.forEach(request => {
+                const tr = document.createElement('tr');
+                
+                let statusBadge = '';
+                if (request.status === 'pending') {
+                    statusBadge = '<span class="status-badge status-pending">Pendente</span>';
+                } else if (request.status === 'completed') {
+                    statusBadge = '<span class="status-badge status-completed">Atendido</span>';
+                } else {
+                    statusBadge = '<span class="status-badge status-canceled">Cancelado</span>';
+                }
+                
+                tr.innerHTML = `
+                    <td>${request.id}</td>
+                    <td>${request.patient}</td>
+                    <td>${request.service}</td>
+                    <td>${request.date}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button onclick="viewRequestDetails('${request.id}')" class="text-blue-600 hover:text-blue-800 mr-3">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="text-green-600 hover:text-green-800 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        function loadSamplePatients() {
+            const patients = [
+                {
+                    id: 'PAT-001',
+                    name: 'Maria da Silva',
+                    birth: '15/03/1985',
+                    phone: '(11) 98765-4321',
+                    address: 'Rua das Flores, 123 - Centro, SP'
+                },
+                {
+                    id: 'PAT-002',
+                    name: 'João Oliveira',
+                    birth: '22/07/1978',
+                    phone: '(11) 91234-5678',
+                    address: 'Av. Paulista, 1000 - Bela Vista, SP'
+                },
+                {
+                    id: 'PAT-003',
+                    name: 'Ana Santos',
+                    birth: '30/11/1990',
+                    phone: '(11) 99876-5432',
+                    address: 'Rua Augusta, 500 - Consolação, SP'
+                },
+                {
+                    id: 'PAT-004',
+                    name: 'Carlos Pereira',
+                    birth: '05/01/1965',
+                    phone: '(11) 95555-1234',
+                    address: 'Rua Vergueiro, 2000 - Vila Mariana, SP'
+                },
+                {
+                    id: 'PAT-005',
+                    name: 'Fernanda Lima',
+                    birth: '18/09/1982',
+                    phone: '(11) 97777-8888',
+                    address: 'Alameda Santos, 800 - Jardins, SP'
+                },
+                {
+                    id: 'PAT-006',
+                    name: 'Roberto Almeida',
+                    birth: '12/04/1973',
+                    phone: '(11) 96666-7777',
+                    address: 'Rua Oscar Freire, 1500 - Pinheiros, SP'
+                },
+                {
+                    id: 'PAT-007',
+                    name: 'Patrícia Costa',
+                    birth: '28/02/1995',
+                    phone: '(11) 94444-5555',
+                    address: 'Av. Rebouças, 3000 - Pinheiros, SP'
+                },
+                {
+                    id: 'PAT-008',
+                    name: 'Marcos Souza',
+                    birth: '09/12/1988',
+                    phone: '(11) 93333-2222',
+                    address: 'Rua Haddock Lobo, 600 - Cerqueira César, SP'
+                }
+            ];
+
+            const tbody = document.getElementById('patientsTableBody');
+            tbody.innerHTML = '';
+
+            patients.forEach(patient => {
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${patient.id}</td>
+                    <td>${patient.name}</td>
+                    <td>${patient.birth}</td>
+                    <td>${patient.phone}</td>
+                    <td>${patient.address}</td>
+                    <td>
+                        <button onclick="viewPatientDetails('${patient.id}')" class="text-blue-600 hover:text-blue-800 mr-3">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="text-green-600 hover:text-green-800 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        function viewPatientDetails(patientId) {
+            // In a real app, this would fetch patient data from a server
+            const patient = {
+                id: patientId,
+                name: 'Maria da Silva',
+                birth: '15/03/1985',
+                cpf: '123.456.789-00',
+                mother: 'Ana Maria da Silva',
+                phone: '(11) 98765-4321',
+                email: 'maria.silva@email.com',
+                address: 'Rua das Flores, 123 - Centro, São Paulo/SP',
+                history: [
+                    { date: '15/06/2023', service: 'Pré-natal', professional: 'Dr. João Silva', status: 'Agendado' },
+                    { date: '10/05/2023', service: 'Consulta', professional: 'Dra. Ana Paula', status: 'Realizado' },
+                    { date: '12/03/2023', service: 'Preventivo', professional: 'Enf. Carla', status: 'Realizado' }
+                ]
+            };
+
+            // Populate patient data in modal
+            document.getElementById('patientName').textContent = patient.name;
+            document.getElementById('patientBirth').textContent = patient.birth;
+            document.getElementById('patientCpf').textContent = patient.cpf;
+            document.getElementById('patientMother').textContent = patient.mother;
+            document.getElementById('patientPhone').textContent = patient.phone;
+            document.getElementById('patientEmail').textContent = patient.email;
+            document.getElementById('patientAddress').textContent = patient.address;
+
+            // Populate history
+            const historyBody = document.getElementById('patientHistoryBody');
+            historyBody.innerHTML = '';
+
+            patient.history.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-200';
+                
+                tr.innerHTML = `
+                    <td class="py-3 text-sm">${item.date}</td>
+                    <td class="py-3 text-sm">${item.service}</td>
+                    <td class="py-3 text-sm">${item.professional}</td>
+                    <td class="py-3 text-sm">
+                        <span class="px-2 py-1 rounded-full text-xs ${item.status === 'Realizado' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
+                            ${item.status}
+                        </span>
+                    </td>
+                `;
+                
+                historyBody.appendChild(tr);
+            });
+
+            // Show modal
+            document.getElementById('patientDetailModal').classList.remove('hidden');
+        }
+
+        function viewRequestDetails(requestId) {
+            // In a real app, this would fetch request data from a server
+            const request = {
+                id: requestId,
+                date: '15/06/2023 14:30',
+                service: 'Pré-natal',
+                status: 'pending',
+                patientName: 'Maria da Silva',
+                patientPhone: '(11) 98765-4321',
+                patientAddress: 'Rua das Flores, 123 - Centro, São Paulo/SP',
+                details: {
+                    weeks: '12 semanas',
+                    firstPrenatal: 'Sim',
+                    betaHCG: 'Não'
+                }
+            };
+
+            // Populate request data in modal
+            document.getElementById('requestId').textContent = request.id;
+            document.getElementById('requestDate').textContent = request.date;
+            document.getElementById('requestService').textContent = request.service;
+            
+            // Update status badge
+            const statusBadge = document.getElementById('requestStatus');
+            statusBadge.className = 'status-badge';
+            if (request.status === 'pending') {
+                statusBadge.classList.add('status-pending');
+                statusBadge.textContent = 'Pendente';
+            } else if (request.status === 'completed') {
+                statusBadge.classList.add('status-completed');
+                statusBadge.textContent = 'Atendido';
+            } else {
+                statusBadge.classList.add('status-canceled');
+                statusBadge.textContent = 'Cancelado';
+            }
+            
+            document.getElementById('requestPatientName').textContent = request.patientName;
+            document.getElementById('requestPatientPhone').textContent = request.patientPhone;
+            document.getElementById('requestPatientAddress').textContent = request.patientAddress;
+
+            // Populate service details
+            const detailsDiv = document.getElementById('requestDetails');
+            detailsDiv.innerHTML = '';
+
+            if (request.service === 'Pré-natal') {
+                detailsDiv.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Semanas de gestação</p>
+                            <p class="font-medium">${request.details.weeks}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">1º pré-natal?</p>
+                            <p class="font-medium">${request.details.firstPrenatal}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Beta HCG recente?</p>
+                            <p class="font-medium">${request.details.betaHCG}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (request.service === 'Consulta') {
+                detailsDiv.innerHTML = `
+                    <div>
+                        <p class="text-sm text-gray-500">Motivo da consulta</p>
+                        <p class="font-medium">${request.details.reason}</p>
+                    </div>
+                `;
+            } else {
+                detailsDiv.innerHTML = `
+                    <p class="text-gray-500">Nenhum detalhe adicional fornecido.</p>
+                `;
+            }
+
+            // Show modal
+            document.getElementById('requestDetailModal').classList.remove('hidden');
+        }
+
+        function updateRequestStatus(newStatus) {
+            // In a real app, this would update the status on the server
+            const statusBadge = document.getElementById('requestStatus');
+            statusBadge.className = 'status-badge';
+            
+            if (newStatus === 'completed') {
+                statusBadge.classList.add('status-completed');
+                statusBadge.textContent = 'Atendido';
+            } else if (newStatus === 'pending') {
+                statusBadge.classList.add('status-pending');
+                statusBadge.textContent = 'Pendente';
+            } else {
+                statusBadge.classList.add('status-canceled');
+                statusBadge.textContent = 'Cancelado';
+            }
+            
+            // Show confirmation
+            alert(`Status atualizado para: ${statusBadge.textContent}`);
+        }
+
+        function closePatientModal() {
+            document.getElementById('patientDetailModal').classList.add('hidden');
+        }
+
+        function closeRequestModal() {
+            document.getElementById('requestDetailModal').classList.add('hidden');
+        }
+
+        // Event Listeners
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            loginAdmin();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', logoutAdmin);
+
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                switchAdminTab(this.getAttribute('data-tab'));
+            });
+        });
+
+        // Filter chips
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => {
+                    c.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // In a real app, this would filter the requests
+                console.log(`Filtering by: ${this.getAttribute('data-value')}`);
+            });
+        });
+
+        // Status filter
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            // In a real app, this would filter the requests
+            console.log(`Filtering by status: ${this.value}`);
+        });
+
+        // Service filter
+        document.getElementById('serviceFilter').addEventListener('change', function() {
+            // In a real app, this would filter the requests
+            console.log(`Filtering by service: ${this.value}`);
+        });
+
+        // Export button
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            alert('Exportando dados para CSV...');
+        });
+
+        // New patient button
+        document.getElementById('newPatientBtn').addEventListener('click', function() {
+            alert('Abrindo formulário para novo paciente...');
+        });
+
+        // New news button
+        document.getElementById('newNewsBtn').addEventListener('click', function() {
+            alert('Abrindo editor de nova notícia...');
+        });
+
+        // Link to admin area in footer
+        document.querySelector('footer a[href="#"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            showAdminLogin();
+        });
+    </script>
+</body>
+</html>
